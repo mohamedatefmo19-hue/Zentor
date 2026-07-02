@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Courses</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px;
+      transition: background 0.3s; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .btn {
+      background: var(--primary); color: white; border: none;
+      padding: 10px 20px; border-radius: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline {
+      background: transparent; border: 1px solid var(--primary); color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px; border: 1px solid #e0e5ec; border-radius: 10px;
+      font-family: inherit; background: rgba(255,255,255,0.8);
+      transition: border 0.2s; color: inherit;
+    }
+    body.dark .form-group input, body.dark .form-group select, body.dark .form-group textarea {
+      background: rgba(26,31,43,0.8); border-color: #2a3142; color: #eef2f6;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark th, body.dark td { border-color: rgba(255,255,255,0.05); }
+    th { opacity: 0.7; font-weight: 600; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s;
+    }
+    .modal.active { visibility: visible; opacity: 1; }
+    .modal-content {
+      background: var(--card); border-radius: 24px; padding: 30px;
+      width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    body.dark .modal-content { background: var(--card-dark); }
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 3000; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html" class="active"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="courses">Courses</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+        <button class="btn" id="addCourseBtn"><i class="fas fa-plus"></i> <span data-lang="add-course">Add Course</span></button>
+      </div>
+    </div>
+
+    <div class="card" id="coursesContainer">
+      <!-- loaded dynamically -->
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div class="modal" id="courseModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Course</h2>
+      <form id="courseForm">
+        <div class="form-group">
+          <label data-lang="course-title">Title</label>
+          <input type="text" id="courseTitle" required>
+        </div>
+        <div class="form-group">
+          <label data-lang="subject">Subject</label>
+          <select id="courseSubject" required></select>
+        </div>
+        <div class="form-group">
+          <label data-lang="grade">Grade</label>
+          <select id="courseGrade" required></select>
+        </div>
+        <div class="form-group">
+          <label data-lang="description">Description</label>
+          <textarea id="courseDesc" rows="3"></textarea>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" id="cancelModalBtn"><span data-lang="cancel">Cancel</span></button>
+          <button type="submit" class="btn"><i class="fas fa-save"></i> <span data-lang="save">Save</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let editingCourseId = null;
+
+    const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'Arabic', 'Computer Science', 'History', 'Geography'];
+    const grades = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6','Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Populate subject/grade selects
+    const subjectSelect = document.getElementById('courseSubject');
+    const gradeSelect = document.getElementById('courseGrade');
+    subjects.forEach(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; subjectSelect.appendChild(o); });
+    grades.forEach(g => { const o = document.createElement('option'); o.value = g; o.textContent = g; gradeSelect.appendChild(o); });
+
+    // Language & theme
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', messages: 'Messages', settings: 'Settings',
+          'add-course': 'Add Course', 'course-title': 'Title', subject: 'Subject', grade: 'Grade', description: 'Description',
+          cancel: 'Cancel', save: 'Save', 'edit': 'Edit', 'delete': 'Delete', 'no-courses': 'No courses yet.'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', messages: 'الرسائل', settings: 'الإعدادات',
+          'add-course': 'إضافة كورس', 'course-title': 'العنوان', subject: 'المادة', grade: 'الصف', description: 'الوصف',
+          cancel: 'إلغاء', save: 'حفظ', 'edit': 'تعديل', 'delete': 'حذف', 'no-courses': 'لا توجد كورسات بعد.'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      loadCourses();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    // Modal
+    const modal = document.getElementById('courseModal');
+    const modalTitle = document.getElementById('modalTitle');
+    document.getElementById('addCourseBtn').addEventListener('click', ()=>{
+      editingCourseId = null;
+      modalTitle.textContent = currentLang==='ar'?'إضافة كورس':'Add Course';
+      document.getElementById('courseTitle').value = '';
+      document.getElementById('courseSubject').value = '';
+      document.getElementById('courseGrade').value = '';
+      document.getElementById('courseDesc').value = '';
+      modal.classList.add('active');
+    });
+    document.getElementById('cancelModalBtn').addEventListener('click', ()=> modal.classList.remove('active'));
+
+    document.getElementById('courseForm').addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const title = document.getElementById('courseTitle').value.trim();
+      const subject = document.getElementById('courseSubject').value;
+      const grade = document.getElementById('courseGrade').value;
+      const description = document.getElementById('courseDesc').value.trim();
+      if (!currentTeacherId) return;
+      try {
+        if (editingCourseId) {
+          await updateDoc(doc(db, `teachers/${currentTeacherId}/courses`, editingCourseId), { title, subject, grade, description });
+          showToast(currentLang==='ar'?'تم تحديث الكورس':'Course updated');
+        } else {
+          await addDoc(collection(db, `teachers/${currentTeacherId}/courses`), {
+            title, subject, grade, description, createdAt: new Date().toISOString()
+          });
+          showToast(currentLang==='ar'?'تم إضافة الكورس':'Course added');
+        }
+        modal.classList.remove('active');
+        loadCourses();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    async function loadCourses() {
+      if (!currentTeacherId) return;
+      const container = document.getElementById('coursesContainer');
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/courses`));
+        const courses = [];
+        snap.forEach(doc => courses.push({ id: doc.id, ...doc.data() }));
+        if (courses.length === 0) {
+          container.innerHTML = `<div class="empty-state" data-lang="no-courses">${currentLang==='ar'?'لا توجد كورسات بعد.':'No courses yet.'}</div>`;
+          return;
+        }
+        let html = `<table><thead><tr><th data-lang="course-title">Title</th><th data-lang="subject">Subject</th><th data-lang="grade">Grade</th><th></th></tr></thead><tbody>`;
+        courses.forEach(c => {
+          html += `<tr>
+            <td>${c.title}</td><td>${c.subject}</td><td>${c.grade}</td>
+            <td>
+              <button class="btn edit-btn" data-id="${c.id}"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-danger delete-btn" data-id="${c.id}"><i class="fas fa-trash"></i></button>
+            </td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        // Edit / Delete handlers
+        container.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', async (e)=>{
+          const id = e.currentTarget.dataset.id;
+          const docSnap = await getDoc(doc(db, `teachers/${currentTeacherId}/courses`, id));
+          if (!docSnap.exists()) return;
+          const data = docSnap.data();
+          editingCourseId = id;
+          modalTitle.textContent = currentLang==='ar'?'تعديل الكورس':'Edit Course';
+          document.getElementById('courseTitle').value = data.title || '';
+          document.getElementById('courseSubject').value = data.subject || '';
+          document.getElementById('courseGrade').value = data.grade || '';
+          document.getElementById('courseDesc').value = data.description || '';
+          modal.classList.add('active');
+        }));
+        container.querySelectorAll('.delete-btn').forEach(b => b.addEventListener('click', async (e)=>{
+          if (!confirm(currentLang==='ar'?'هل أنت متأكد من الحذف؟':'Are you sure?')) return;
+          await deleteDoc(doc(db, `teachers/${currentTeacherId}/courses`, e.currentTarget.dataset.id));
+          showToast(currentLang==='ar'?'تم حذف الكورس':'Course deleted');
+          loadCourses();
+        }));
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      loadCourses();
+    });
+  </script>
+</body>
+</html>
