@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Students</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .btn {
+      background: var(--primary); color: white; border: none;
+      padding: 10px 20px; border-radius: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s; white-space: nowrap;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-warning { background: #f39c12; }
+    .btn-warning:hover { background: #e67e22; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark th, body.dark td { border-color: rgba(255,255,255,0.05); }
+    th { opacity: 0.7; font-weight: 600; }
+
+    .search-box {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--glass-bg); backdrop-filter: blur(10px);
+      border: 1px solid #e0e5ec; border-radius: 30px;
+      padding: 8px 16px;
+    }
+    body.dark .search-box { background: var(--glass-bg-dark); border-color: #2a3142; }
+    .search-box input {
+      border: none; background: transparent; outline: none;
+      font-family: inherit; color: inherit; width: 180px;
+    }
+    .search-box i { color: #aaa; }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 3000; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html" class="active"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="students">Students</h1>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search students...">
+        </div>
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+        <button class="btn" id="exportCsvBtn"><i class="fas fa-file-csv"></i> <span data-lang="export-csv">Export CSV</span></button>
+      </div>
+    </div>
+
+    <div class="card" id="studentsContainer"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, updateDoc, deleteDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let allStudents = [];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', messages: 'Messages', settings: 'Settings',
+          'export-csv': 'Export CSV', 'search': 'Search students...', 'name': 'Name', 'email': 'Email',
+          'status': 'Status', 'actions': 'Actions', 'view': 'View', 'block': 'Block', 'unblock': 'Unblock',
+          'delete': 'Delete', 'active': 'Active', 'blocked': 'Blocked', 'no-students': 'No students found.',
+          'csv-filename': 'students.csv'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', messages: 'الرسائل', settings: 'الإعدادات',
+          'export-csv': 'تصدير CSV', 'search': 'بحث عن طالب...', 'name': 'الاسم', 'email': 'البريد الإلكتروني',
+          'status': 'الحالة', 'actions': 'إجراءات', 'view': 'عرض', 'block': 'حظر', 'unblock': 'إلغاء الحظر',
+          'delete': 'حذف', 'active': 'نشط', 'blocked': 'محظور', 'no-students': 'لا يوجد طلاب.',
+          'csv-filename': 'الطلاب.csv'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      renderStudents();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    document.getElementById('searchInput').addEventListener('input', renderStudents);
+
+    // Export CSV
+    document.getElementById('exportCsvBtn').addEventListener('click', ()=>{
+      if (!allStudents.length) return;
+      const rows = [['Name','Email','Status','Registered']];
+      allStudents.forEach(s => {
+        rows.push([s.name, s.email, s.blocked ? 'Blocked' : 'Active', s.createdAt ? new Date(s.createdAt).toLocaleDateString() : '']);
+      });
+      const csvContent = rows.map(r => r.map(c => `"${c.replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = currentLang==='ar'?'الطلاب.csv':'students.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(currentLang==='ar'?'تم التصدير بنجاح':'Exported successfully');
+    });
+
+    async function loadStudents() {
+      if (!currentTeacherId) return;
+      const container = document.getElementById('studentsContainer');
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/students`));
+        allStudents = [];
+        snap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+        renderStudents();
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderStudents() {
+      const container = document.getElementById('studentsContainer');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = allStudents.filter(s =>
+        (s.name || '').toLowerCase().includes(search) ||
+        (s.email || '').toLowerCase().includes(search)
+      );
+      if (!filtered.length) {
+        container.innerHTML = `<div class="empty-state" data-lang="no-students">${currentLang==='ar'?'لا يوجد طلاب.':'No students found.'}</div>`;
+        return;
+      }
+      let html = `<table><thead><tr>
+        <th data-lang="name">Name</th>
+        <th data-lang="email">Email</th>
+        <th data-lang="status">Status</th>
+        <th data-lang="actions">Actions</th>
+      </tr></thead><tbody>`;
+      filtered.forEach(s => {
+        const statusText = s.blocked ? (currentLang==='ar'?'محظور':'Blocked') : (currentLang==='ar'?'نشط':'Active');
+        const statusClass = s.blocked ? 'status-blocked' : 'status-active';
+        html += `<tr>
+          <td>${s.name || ''}</td>
+          <td>${s.email || ''}</td>
+          <td><span class="${statusClass}">${statusText}</span></td>
+          <td>
+            <a href="student-profile.html?studentId=${s.id}" class="btn btn-outline" style="padding:6px 12px;"><i class="fas fa-eye"></i> <span data-lang="view">View</span></a>
+            <button class="btn btn-warning toggle-block-btn" data-id="${s.id}" data-blocked="${s.blocked}" style="padding:6px 12px;">
+              <i class="fas ${s.blocked?'fa-unlock':'fa-ban'}"></i> <span data-lang="${s.blocked?'unblock':'block'}">${s.blocked?(currentLang==='ar'?'إلغاء الحظر':'Unblock'):(currentLang==='ar'?'حظر':'Block')}</span>
+            </button>
+            <button class="btn btn-danger delete-btn" data-id="${s.id}" style="padding:6px 12px;">
+              <i class="fas fa-trash"></i> <span data-lang="delete">Delete</span>
+            </button>
+          </td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+
+      // Block/Unblock handlers
+      container.querySelectorAll('.toggle-block-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.currentTarget.dataset.id;
+          const blocked = e.currentTarget.dataset.blocked === 'true';
+          try {
+            await updateDoc(doc(db, `teachers/${currentTeacherId}/students`, id), { blocked: !blocked });
+            showToast(currentLang==='ar'?(blocked?'تم إلغاء الحظر':'تم الحظر'):(blocked?'Unblocked':'Blocked'));
+            loadStudents();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+
+      // Delete handlers
+      container.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          if (!confirm(currentLang==='ar'?'هل أنت متأكد من الحذف؟':'Are you sure?')) return;
+          try {
+            await deleteDoc(doc(db, `teachers/${currentTeacherId}/students`, e.currentTarget.dataset.id));
+            showToast(currentLang==='ar'?'تم حذف الطالب':'Student deleted');
+            loadStudents();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      loadStudents();
+    });
+  </script>
+  <style>
+    .status-active { color: #2ecc71; font-weight: 600; }
+    .status-blocked { color: #e74c3c; font-weight: 600; }
+  </style>
+</body>
+</html>
