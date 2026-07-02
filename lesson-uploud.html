@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Upload Lesson</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 30px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .btn {
+      background: var(--primary); color: white; border: none;
+      padding: 12px 24px; border-radius: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline {
+      background: transparent; border: 1px solid var(--primary); color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary); color: white; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; font-size: 14px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 12px; border: 1px solid #e0e5ec; border-radius: 12px;
+      font-family: inherit; background: rgba(255,255,255,0.8);
+      transition: border 0.2s; color: inherit;
+    }
+    body.dark .form-group input, body.dark .form-group select, body.dark .form-group textarea {
+      background: rgba(26,31,43,0.8); border-color: #2a3142; color: #eef2f6;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary);
+    }
+
+    .file-upload-area {
+      border: 2px dashed #e0e5ec; border-radius: 16px; padding: 30px;
+      text-align: center; cursor: pointer; transition: border 0.2s;
+      background: rgba(255,255,255,0.4);
+    }
+    body.dark .file-upload-area { border-color: #2a3142; background: rgba(26,31,43,0.4); }
+    .file-upload-area:hover { border-color: var(--primary); }
+    .file-upload-area i { font-size: 36px; color: var(--primary); margin-bottom: 10px; }
+    .file-upload-area p { opacity: 0.7; }
+    .file-name { margin-top: 8px; font-size: 13px; }
+    .thumbnail-preview { max-width: 200px; border-radius: 12px; margin-top: 10px; display: none; }
+
+    .progress-bar {
+      height: 6px; background: #e0e5ec; border-radius: 10px; margin-top: 8px;
+      overflow: hidden; display: none;
+    }
+    body.dark .progress-bar { background: #2a3142; }
+    .progress-fill {
+      height: 100%; background: var(--primary); width: 0%;
+      transition: width 0.2s;
+    }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 3000; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="lesson-upload.html" class="active"><i class="fas fa-upload"></i> <span data-lang="lesson-upload">Upload Lesson</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="lesson-upload">Upload Lesson</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="uploadForm">
+        <div class="form-group">
+          <label data-lang="lesson-title">Lesson Title</label>
+          <input type="text" id="lessonTitle" required placeholder="e.g., Introduction to Algebra">
+        </div>
+        <div class="form-group">
+          <label data-lang="course">Related Course (optional)</label>
+          <select id="lessonCourse">
+            <option value="">-- Select Course --</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label data-lang="description">Description</label>
+          <textarea id="lessonDesc" rows="3" placeholder="Brief description..."></textarea>
+        </div>
+
+        <!-- Video Upload -->
+        <div class="form-group">
+          <label><i class="fas fa-video"></i> <span data-lang="video">Video File (MP4, MOV, AVI)</span></label>
+          <div class="file-upload-area" id="videoDropArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p><span data-lang="click-browse-video">Click or drag video file here</span></p>
+            <input type="file" id="videoFile" accept="video/*" style="display:none;">
+            <div class="file-name" id="videoFileName"></div>
+            <div class="progress-bar" id="videoProgress"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <!-- PDF Upload -->
+        <div class="form-group">
+          <label><i class="fas fa-file-pdf"></i> <span data-lang="pdf">PDF File</span></label>
+          <div class="file-upload-area" id="pdfDropArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p><span data-lang="click-browse-pdf">Click or drag PDF file here</span></p>
+            <input type="file" id="pdfFile" accept="application/pdf" style="display:none;">
+            <div class="file-name" id="pdfFileName"></div>
+            <div class="progress-bar" id="pdfProgress"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <!-- Thumbnail Upload -->
+        <div class="form-group">
+          <label><i class="fas fa-image"></i> <span data-lang="thumbnail">Thumbnail Image</span></label>
+          <div class="file-upload-area" id="thumbDropArea">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <p><span data-lang="click-browse-thumb">Click or drag image here</span></p>
+            <input type="file" id="thumbFile" accept="image/*" style="display:none;">
+            <img id="thumbPreview" class="thumbnail-preview" src="#" alt="Preview">
+            <div class="file-name" id="thumbFileName"></div>
+            <div class="progress-bar" id="thumbProgress"><div class="progress-fill"></div></div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn" style="width:100%;">
+          <i class="fas fa-upload"></i> <span data-lang="upload-lesson">Upload Lesson</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const CLOUD_NAME = 'deaevfmvm';
+    const UPLOAD_PRESET = 'ml_default';
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    // Language & Theme
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'lesson-upload': 'Upload Lesson',
+          'live-classes': 'Live Classes', students: 'Students', assignments: 'Assignments', exams: 'Exams',
+          messages: 'Messages', settings: 'Settings', 'lesson-title': 'Lesson Title', course: 'Related Course',
+          description: 'Description', video: 'Video File (MP4, MOV, AVI)', pdf: 'PDF File', thumbnail: 'Thumbnail Image',
+          'click-browse-video': 'Click or drag video file here', 'click-browse-pdf': 'Click or drag PDF file here',
+          'click-browse-thumb': 'Click or drag image here', 'upload-lesson': 'Upload Lesson',
+          'upload-success': 'Lesson uploaded successfully!', 'upload-error': 'Upload failed. Please try again.',
+          'no-file': 'Please select at least one file.'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'lesson-upload': 'رفع درس',
+          'live-classes': 'الحصص المباشرة', students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات',
+          messages: 'الرسائل', settings: 'الإعدادات', 'lesson-title': 'عنوان الدرس', course: 'الكورس المرتبط',
+          description: 'الوصف', video: 'ملف فيديو (MP4, MOV, AVI)', pdf: 'ملف PDF', thumbnail: 'صورة مصغرة',
+          'click-browse-video': 'انقر أو اسحب ملف الفيديو هنا', 'click-browse-pdf': 'انقر أو اسحب ملف PDF هنا',
+          'click-browse-thumb': 'انقر أو اسحب صورة هنا', 'upload-lesson': 'رفع الدرس',
+          'upload-success': 'تم رفع الدرس بنجاح!', 'upload-error': 'فشل الرفع. حاول مرة أخرى.',
+          'no-file': 'يرجى اختيار ملف واحد على الأقل.'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    // File upload helpers
+    function setupFileUpload(dropAreaId, inputId, fileNameId, progressBarId, previewImgId = null) {
+      const dropArea = document.getElementById(dropAreaId);
+      const input = document.getElementById(inputId);
+      const fileNameEl = document.getElementById(fileNameId);
+      const progressBar = document.getElementById(progressBarId);
+      const fill = progressBar.querySelector('.progress-fill');
+      
+      dropArea.addEventListener('click', () => input.click());
+      input.addEventListener('change', () => {
+        if (input.files.length > 0) {
+          fileNameEl.textContent = input.files[0].name;
+          if (previewImgId) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const img = document.getElementById(previewImgId);
+              img.src = e.target.result;
+              img.style.display = 'block';
+            };
+            reader.readAsDataURL(input.files[0]);
+          }
+        }
+      });
+      dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.style.borderColor = 'var(--primary)'; });
+      dropArea.addEventListener('dragleave', () => { dropArea.style.borderColor = ''; });
+      dropArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropArea.style.borderColor = '';
+        if (e.dataTransfer.files.length > 0) {
+          input.files = e.dataTransfer.files;
+          input.dispatchEvent(new Event('change'));
+        }
+      });
+
+      return {
+        getFile: () => input.files[0] || null,
+        showProgress: (percent) => {
+          progressBar.style.display = 'block';
+          fill.style.width = percent + '%';
+        },
+        hideProgress: () => { progressBar.style.display = 'none'; fill.style.width = '0%'; }
+      };
+    }
+
+    const videoUpload = setupFileUpload('videoDropArea', 'videoFile', 'videoFileName', 'videoProgress');
+    const pdfUpload = setupFileUpload('pdfDropArea', 'pdfFile', 'pdfFileName', 'pdfProgress');
+    const thumbUpload = setupFileUpload('thumbDropArea', 'thumbFile', 'thumbFileName', 'thumbProgress', 'thumbPreview');
+
+    async function uploadToCloudinary(file, folder) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('upload_preset', UPLOAD_PRESET);
+      formData.append('folder', folder);
+      
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`);
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response.secure_url);
+          } else {
+            reject(new Error('Upload failed with status ' + xhr.status));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            // update progress for respective file type
+            if (folder === 'videos') videoUpload.showProgress(percent);
+            else if (folder === 'pdfs') pdfUpload.showProgress(percent);
+            else if (folder === 'thumbnails') thumbUpload.showProgress(percent);
+          }
+        };
+        xhr.send(formData);
+      });
+    }
+
+    // Load courses for dropdown
+    async function loadCourses() {
+      if (!currentTeacherId) return;
+      const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/courses`));
+      const select = document.getElementById('lessonCourse');
+      select.innerHTML = '<option value="">-- Select Course --</option>';
+      snap.forEach(doc => {
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().title;
+        select.appendChild(opt);
+      });
+    }
+
+    // Form submit
+    document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+      const title = document.getElementById('lessonTitle').value.trim();
+      const courseId = document.getElementById('lessonCourse').value;
+      const description = document.getElementById('lessonDesc').value.trim();
+
+      const videoFile = videoUpload.getFile();
+      const pdfFile = pdfUpload.getFile();
+      const thumbFile = thumbUpload.getFile();
+
+      if (!videoFile && !pdfFile && !thumbFile) {
+        showToast(currentLang==='ar'?'يرجى اختيار ملف واحد على الأقل.':'Please select at least one file.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Lesson';
+        return;
+      }
+
+      try {
+        const uploads = [];
+        if (videoFile) uploads.push(uploadToCloudinary(videoFile, 'videos').then(url => ({ type: 'video', url })));
+        if (pdfFile) uploads.push(uploadToCloudinary(pdfFile, 'pdfs').then(url => ({ type: 'pdf', url })));
+        if (thumbFile) uploads.push(uploadToCloudinary(thumbFile, 'thumbnails').then(url => ({ type: 'thumbnail', url })));
+
+        const results = await Promise.all(uploads);
+        const lessonData = {
+          title,
+          courseId: courseId || null,
+          description,
+          videoUrl: results.find(r => r.type === 'video')?.url || null,
+          pdfUrl: results.find(r => r.type === 'pdf')?.url || null,
+          thumbnailUrl: results.find(r => r.type === 'thumbnail')?.url || null,
+          createdAt: new Date().toISOString()
+        };
+
+        await addDoc(collection(db, `teachers/${currentTeacherId}/lessons`), lessonData);
+        showToast(currentLang==='ar'?'تم رفع الدرس بنجاح!':'Lesson uploaded successfully!', 'success');
+        // Reset form
+        document.getElementById('uploadForm').reset();
+        document.getElementById('videoFileName').textContent = '';
+        document.getElementById('pdfFileName').textContent = '';
+        document.getElementById('thumbFileName').textContent = '';
+        document.getElementById('thumbPreview').style.display = 'none';
+        videoUpload.hideProgress();
+        pdfUpload.hideProgress();
+        thumbUpload.hideProgress();
+      } catch (err) {
+        console.error(err);
+        showToast(currentLang==='ar'?'فشل الرفع. حاول مرة أخرى.':'Upload failed. Please try again.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-upload"></i> Upload Lesson';
+      }
+    });
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      loadCourses();
+    });
+  </script>
+</body>
+</html>
