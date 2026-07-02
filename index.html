@@ -3,453 +3,149 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zentor - Teacher Platform</title>
-  <!-- Google Fonts -->
+  <title>Zentor - Empower Your Teaching</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --primary: #2a7de1;
-      --primary-hover: #1a67c4;
-      --bg: #f4f7fc;
-      --bg-dark: #0b0e14;
-      --card: #ffffff;
-      --card-dark: #1a1f2b;
-      --text: #0b1e33;
-      --text-dark: #eef2f6;
-      --glass-bg: rgba(255,255,255,0.7);
-      --glass-bg-dark: rgba(26,31,43,0.7);
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
       --shadow: 0 8px 32px rgba(0,0,0,0.08);
-      --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
-      scroll-behavior: smooth;
     }
     body {
       font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: var(--bg); color: var(--text);
       transition: background 0.3s, color 0.3s;
       overflow-x: hidden;
     }
-    body.dark {
-      background: var(--bg-dark);
-      color: var(--text-dark);
-    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
 
-    /* Navbar */
     .navbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 16px 5%;
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      background: var(--glass-bg);
-      border-bottom: 1px solid rgba(255,255,255,0.2);
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 5%; backdrop-filter: blur(20px);
+      background: var(--glass-bg); border-bottom: 1px solid rgba(255,255,255,0.2);
+      position: sticky; top: 0; z-index: 1000;
     }
-    body.dark .navbar {
-      background: var(--glass-bg-dark);
-      border-color: rgba(255,255,255,0.05);
-    }
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .logo-area i {
-      font-size: 32px;
-      color: var(--primary);
-    }
-    .logo-area span {
-      font-size: 24px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #2a7de1, #6c5ce7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
+    body.dark .navbar { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .logo-area { display: flex; align-items: center; gap: 10px; }
+    .logo-area i { font-size: 32px; color: var(--primary); }
+    .logo-area span { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
     .icon-btn {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 50px;
-      padding: 8px 16px;
-      cursor: pointer;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.3s, border 0.3s;
-      color: inherit;
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
     }
-    body.dark .icon-btn {
-      background: var(--glass-bg-dark);
-      border-color: rgba(255,255,255,0.05);
-    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
     .login-btn {
-      background: var(--primary);
-      color: white;
-      padding: 10px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: background 0.2s;
-      border: none;
+      background: var(--primary); color: white; padding: 10px 24px;
+      border-radius: 30px; text-decoration: none; font-weight: 600;
+      display: flex; align-items: center; gap: 8px; transition: background 0.2s;
     }
-    .login-btn:hover {
-      background: var(--primary-hover);
-    }
+    .login-btn:hover { background: var(--primary-hover); }
 
-    /* Hero Section */
     .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 80px 5% 60px;
-      position: relative;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 80px 5% 60px;
     }
-    .hero h1 {
-      font-size: clamp(2.5rem, 6vw, 4rem);
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 20px;
-    }
-    .hero .gradient-text {
-      background: linear-gradient(135deg, #2a7de1, #a855f7);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero p {
-      font-size: 1.2rem;
-      max-width: 600px;
-      margin: 0 auto 30px;
-      opacity: 0.8;
-    }
-    .hero-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      justify-content: center;
-    }
+    .hero h1 { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; line-height: 1.2; margin-bottom: 20px; }
+    .hero .gradient-text { background: linear-gradient(135deg, #2a7de1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero p { font-size: 1.2rem; max-width: 600px; margin: 0 auto 30px; opacity: 0.8; }
+    .hero-buttons { display: flex; flex-wrap: wrap; gap: 16px; justify-content: center; }
     .btn-primary {
-      background: var(--primary);
-      color: white;
-      padding: 14px 32px;
-      border-radius: 40px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      background: var(--primary); color: white; padding: 14px 32px;
+      border-radius: 40px; font-weight: 600; text-decoration: none;
+      display: inline-flex; align-items: center; gap: 8px;
       transition: transform 0.2s, box-shadow 0.2s;
       box-shadow: 0 8px 24px rgba(42,125,225,0.3);
     }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 32px rgba(42,125,225,0.4);
-    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(42,125,225,0.4); }
     .btn-outline {
-      background: transparent;
-      border: 2px solid var(--primary);
-      color: var(--primary);
-      padding: 14px 32px;
-      border-radius: 40px;
-      font-weight: 600;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s;
+      background: transparent; border: 2px solid var(--primary); color: var(--primary);
+      padding: 14px 32px; border-radius: 40px; font-weight: 600;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
     }
-    body.dark .btn-outline {
-      color: #eef2f6;
-      border-color: #eef2f6;
-    }
-    .btn-outline:hover {
-      background: var(--primary);
-      color: white;
-    }
+    body.dark .btn-outline { color: #eef2f6; border-color: #eef2f6; }
+    .btn-outline:hover { background: var(--primary); color: white; }
 
-    /* Features */
     .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
-      padding: 60px 5%;
-      max-width: 1200px;
-      margin: 0 auto;
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px; padding: 60px 5%; max-width: 1200px; margin: 0 auto;
     }
     .feature-card {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      border-radius: 24px;
-      padding: 32px;
-      box-shadow: var(--shadow);
-      border: 1px solid rgba(255,255,255,0.2);
-      transition: transform 0.2s, box-shadow 0.2s;
-      text-align: center;
-    }
-    body.dark .feature-card {
-      background: var(--card-dark);
-      border-color: rgba(255,255,255,0.05);
-    }
-    .feature-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 16px 40px rgba(0,0,0,0.12);
-    }
-    .feature-icon {
-      font-size: 40px;
-      margin-bottom: 16px;
-      color: var(--primary);
-    }
-    .feature-card h3 {
-      font-size: 1.4rem;
-      margin-bottom: 10px;
-    }
-    .feature-card p {
-      opacity: 0.8;
-    }
-
-    /* Stats */
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 40px;
-      padding: 60px 5%;
-      background: linear-gradient(135deg, rgba(42,125,225,0.05), rgba(108,92,231,0.05));
-      backdrop-filter: blur(40px);
-      margin: 40px 0;
-    }
-    .stat-item {
-      text-align: center;
-    }
-    .stat-number {
-      font-size: 3rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    .stat-label {
-      font-size: 1rem;
-      opacity: 0.7;
-    }
-
-    /* CTA Section */
-    .cta {
-      text-align: center;
-      padding: 80px 5%;
-      background: linear-gradient(135deg, #2a7de1, #6c5ce7);
-      color: white;
-      border-radius: 40px;
-      margin: 60px 5%;
-      position: relative;
-      overflow: hidden;
-    }
-    .cta::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 70%);
-      animation: rotate 15s linear infinite;
-    }
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    .cta h2 {
-      font-size: 2.5rem;
-      position: relative;
-      z-index: 1;
-    }
-    .cta p {
-      font-size: 1.2rem;
-      margin: 20px 0 30px;
-      position: relative;
-      z-index: 1;
-      opacity: 0.9;
-    }
-    .cta .btn-white {
-      background: white;
-      color: #2a7de1;
-      padding: 16px 40px;
-      border-radius: 40px;
-      font-weight: 700;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 24px; padding: 32px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); text-align: center;
       transition: transform 0.2s;
-      position: relative;
-      z-index: 1;
     }
-    .cta .btn-white:hover {
-      transform: scale(1.05);
-    }
+    body.dark .feature-card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+    .feature-card:hover { transform: translateY(-5px); }
+    .feature-icon { font-size: 40px; color: var(--primary); margin-bottom: 16px; }
+    .feature-card h3 { margin-bottom: 10px; }
 
-    /* Footer */
-    .footer {
-      text-align: center;
-      padding: 30px 5%;
-      opacity: 0.7;
-      font-size: 0.9rem;
-      border-top: 1px solid rgba(0,0,0,0.05);
+    .cta {
+      text-align: center; padding: 80px 5%; background: linear-gradient(135deg, #2a7de1, #6c5ce7);
+      color: white; border-radius: 40px; margin: 60px 5%; position: relative; overflow: hidden;
     }
-    body.dark .footer {
-      border-color: rgba(255,255,255,0.05);
-    }
+    .cta h2 { font-size: 2.5rem; position: relative; z-index: 1; }
+    .cta p { margin: 20px 0 30px; position: relative; z-index: 1; opacity: 0.9; }
+    .btn-white { background: white; color: #2a7de1; padding: 16px 40px; border-radius: 40px; font-weight: 700; text-decoration: none; position: relative; z-index: 1; }
+    .btn-white:hover { transform: scale(1.05); }
+
+    .footer { text-align: center; padding: 30px 5%; opacity: 0.7; font-size: 0.9rem; }
 
     @media (max-width: 768px) {
-      .navbar {
-        padding: 12px 20px;
-      }
-      .hero {
-        padding: 60px 20px 40px;
-      }
-      .features {
-        grid-template-columns: 1fr;
-        padding: 40px 20px;
-      }
-      .stats {
-        gap: 20px;
-      }
-      .cta {
-        margin: 40px 20px;
-        padding: 60px 20px;
-      }
+      .navbar { padding: 12px 20px; }
+      .hero { padding: 60px 20px 40px; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Navbar -->
   <nav class="navbar">
     <div class="logo-area">
       <i class="fas fa-chalkboard-teacher"></i>
       <span>Zentor</span>
     </div>
     <div class="nav-actions">
-      <button class="icon-btn" id="langToggle">
-        <i class="fas fa-globe"></i> <span>AR</span>
-      </button>
-      <button class="icon-btn" id="themeToggle">
-        <i class="fas fa-moon"></i> <span>Dark</span>
-      </button>
-      <a href="login.html" class="login-btn">
-        <i class="fas fa-sign-in-alt"></i> <span data-lang="login">Login</span>
-      </a>
+      <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+      <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+      <a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> <span data-lang="login">Login</span></a>
     </div>
   </nav>
 
-  <!-- Hero -->
   <section class="hero">
-    <h1>
-      <span data-lang="hero-title">Empower Your Teaching with</span><br>
-      <span class="gradient-text">Zentor</span>
-    </h1>
-    <p data-lang="hero-desc">
-      The all-in-one platform to create courses, manage students, host live classes, and grow your educational business.
-    </p>
+    <h1><span data-lang="hero-title">Empower Your Teaching with</span><br><span class="gradient-text">Zentor</span></h1>
+    <p data-lang="hero-desc">The all-in-one platform to create courses, manage students, host live classes, and grow your educational business.</p>
     <div class="hero-buttons">
-      <a href="login.html" class="btn-primary">
-        <i class="fas fa-rocket"></i> <span data-lang="get-started">Get Started</span>
-      </a>
-      <a href="#features" class="btn-outline">
-        <i class="fas fa-star"></i> <span data-lang="explore-features">Explore Features</span>
-      </a>
+      <a href="login.html" class="btn-primary"><i class="fas fa-rocket"></i> <span data-lang="get-started">Get Started</span></a>
+      <a href="#features" class="btn-outline"><i class="fas fa-star"></i> <span data-lang="explore">Explore Features</span></a>
     </div>
   </section>
 
-  <!-- Features -->
   <section id="features" class="features">
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-laptop-house"></i></div>
-      <h3 data-lang="feat1-title">Course Builder</h3>
-      <p data-lang="feat1-desc">Create structured courses with video, PDF, and quizzes in minutes.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-users"></i></div>
-      <h3 data-lang="feat2-title">Student Management</h3>
-      <p data-lang="feat2-desc">Track progress, attendance, and performance with detailed analytics.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-video"></i></div>
-      <h3 data-lang="feat3-title">Live Classes</h3>
-      <p data-lang="feat3-desc">Host interactive live sessions with real-time chat and recording.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-      <h3 data-lang="feat4-title">Revenue & Analytics</h3>
-      <p data-lang="feat4-desc">Monitor earnings, subscriptions, and growth with smart dashboards.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-bell"></i></div>
-      <h3 data-lang="feat5-title">Notifications</h3>
-      <p data-lang="feat5-desc">Keep students engaged with push notifications and announcements.</p>
-    </div>
-    <div class="feature-card">
-      <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-      <h3 data-lang="feat6-title">Secure & Scalable</h3>
-      <p data-lang="feat6-desc">Your data is safe with Firebase and enterprise-grade security.</p>
-    </div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-laptop-house"></i></div><h3 data-lang="feat1-title">Course Builder</h3><p data-lang="feat1-desc">Create structured courses with video, PDF, and quizzes.</p></div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-users"></i></div><h3 data-lang="feat2-title">Student Management</h3><p data-lang="feat2-desc">Track progress, attendance, and performance.</p></div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-video"></i></div><h3 data-lang="feat3-title">Live Classes</h3><p data-lang="feat3-desc">Host interactive live sessions with chat & recording.</p></div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-chart-line"></i></div><h3 data-lang="feat4-title">Analytics</h3><p data-lang="feat4-desc">Smart dashboards to monitor growth & earnings.</p></div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-bell"></i></div><h3 data-lang="feat5-title">Notifications</h3><p data-lang="feat5-desc">Keep students engaged with push notifications.</p></div>
+    <div class="feature-card"><div class="feature-icon"><i class="fas fa-shield-alt"></i></div><h3 data-lang="feat6-title">Secure</h3><p data-lang="feat6-desc">Enterprise-grade security with Firebase.</p></div>
   </section>
 
-  <!-- Stats -->
-  <div class="stats">
-    <div class="stat-item">
-      <div class="stat-number">10K+</div>
-      <div class="stat-label" data-lang="stat1">Active Teachers</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-number">500K+</div>
-      <div class="stat-label" data-lang="stat2">Students Enrolled</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-number">1M+</div>
-      <div class="stat-label" data-lang="stat3">Lessons Delivered</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-number">4.9</div>
-      <div class="stat-label" data-lang="stat4">User Rating</div>
-    </div>
-  </div>
-
-  <!-- CTA -->
   <section class="cta">
     <h2 data-lang="cta-title">Ready to Transform Your Teaching?</h2>
-    <p data-lang="cta-desc">Join thousands of educators who trust Zentor to deliver exceptional learning experiences.</p>
-    <a href="login.html" class="btn-white">
-      <i class="fas fa-arrow-right"></i> <span data-lang="start-free">Start Free Today</span>
-    </a>
+    <p data-lang="cta-desc">Join thousands of educators who trust Zentor.</p>
+    <a href="login.html" class="btn-white"><i class="fas fa-arrow-right"></i> <span data-lang="start-free">Start Free Today</span></a>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <p>&copy; 2025 Zentor. All rights reserved.</p>
-  </footer>
+  <footer class="footer">&copy; 2025 Zentor. All rights reserved.</footer>
 
-  <!-- Firebase & Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
@@ -464,111 +160,57 @@
       appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
       measurementId: "G-X80GNJHMS5"
     };
-
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    // Check if already logged in as teacher -> redirect to dashboard
+    // Redirect if already logged in as teacher
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const prefRef = doc(db, `teachers/${user.uid}/settings/preferences`);
         const snap = await getDoc(prefRef);
-        if (snap.exists()) {
-          window.location.href = 'dashboard.html';
-        }
+        if (snap.exists()) window.location.href = 'dashboard.html';
       }
     });
 
-    // Language toggle
-    const langToggle = document.getElementById('langToggle');
+    // Language and theme toggles (same as before)
     let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    const langToggle = document.getElementById('langToggle');
+    const themeToggle = document.getElementById('themeToggle');
     applyLanguage(currentLang);
+    applyTheme();
+
     langToggle.addEventListener('click', () => {
       currentLang = currentLang === 'en' ? 'ar' : 'en';
       localStorage.setItem('zentor_lang', currentLang);
       applyLanguage(currentLang);
     });
-
-    function applyLanguage(lang) {
-      document.documentElement.lang = lang;
-      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
-      const translations = {
-        en: {
-          login: 'Login',
-          'hero-title': 'Empower Your Teaching with',
-          'hero-desc': 'The all-in-one platform to create courses, manage students, host live classes, and grow your educational business.',
-          'get-started': 'Get Started',
-          'explore-features': 'Explore Features',
-          'feat1-title': 'Course Builder',
-          'feat1-desc': 'Create structured courses with video, PDF, and quizzes in minutes.',
-          'feat2-title': 'Student Management',
-          'feat2-desc': 'Track progress, attendance, and performance with detailed analytics.',
-          'feat3-title': 'Live Classes',
-          'feat3-desc': 'Host interactive live sessions with real-time chat and recording.',
-          'feat4-title': 'Revenue & Analytics',
-          'feat4-desc': 'Monitor earnings, subscriptions, and growth with smart dashboards.',
-          'feat5-title': 'Notifications',
-          'feat5-desc': 'Keep students engaged with push notifications and announcements.',
-          'feat6-title': 'Secure & Scalable',
-          'feat6-desc': 'Your data is safe with Firebase and enterprise-grade security.',
-          stat1: 'Active Teachers',
-          stat2: 'Students Enrolled',
-          stat3: 'Lessons Delivered',
-          stat4: 'User Rating',
-          'cta-title': 'Ready to Transform Your Teaching?',
-          'cta-desc': 'Join thousands of educators who trust Zentor to deliver exceptional learning experiences.',
-          'start-free': 'Start Free Today'
-        },
-        ar: {
-          login: 'تسجيل الدخول',
-          'hero-title': 'طور تدريسك مع',
-          'hero-desc': 'المنصة الشاملة لإنشاء الدورات، إدارة الطلاب، استضافة الحصص المباشرة، وتنمية أعمالك التعليمية.',
-          'get-started': 'ابدأ الآن',
-          'explore-features': 'استكشف الميزات',
-          'feat1-title': 'منشئ الدورات',
-          'feat1-desc': 'أنشئ دورات منظمة بالفيديو وPDF والاختبارات في دقائق.',
-          'feat2-title': 'إدارة الطلاب',
-          'feat2-desc': 'تابع التقدم والحضور والأداء بتحليلات مفصلة.',
-          'feat3-title': 'الحصص المباشرة',
-          'feat3-desc': 'استضف جلسات تفاعلية مع محادثة مباشرة وتسجيل.',
-          'feat4-title': 'الإيرادات والتحليلات',
-          'feat4-desc': 'راقب الأرباح والاشتراكات والنمو بلوحات معلومات ذكية.',
-          'feat5-title': 'الإشعارات',
-          'feat5-desc': 'حافظ على تفاعل الطلاب بالإشعارات والتنبيهات.',
-          'feat6-title': 'آمن وقابل للتوسع',
-          'feat6-desc': 'بياناتك آمنة مع Firebase وأمان على مستوى المؤسسات.',
-          stat1: 'معلم نشط',
-          stat2: 'طالب مسجل',
-          stat3: 'درس تم تقديمه',
-          stat4: 'تقييم المستخدمين',
-          'cta-title': 'هل أنت مستعد لتطوير تدريسك؟',
-          'cta-desc': 'انضم إلى آلاف المعلمين الذين يثقون بـ Zentor لتقديم تجارب تعليمية استثنائية.',
-          'start-free': 'ابدأ مجانًا اليوم'
-        }
-      };
-      document.querySelectorAll('[data-lang]').forEach(el => {
-        const key = el.getAttribute('data-lang');
-        if (translations[lang] && translations[lang][key]) {
-          el.textContent = translations[lang][key];
-        }
-      });
-    }
-
-    // Theme toggle
-    const themeToggle = document.getElementById('themeToggle');
-    const savedTheme = localStorage.getItem('zentor_theme') || 'light';
-    if (savedTheme === 'dark') {
-      document.body.classList.add('dark');
-      themeToggle.innerHTML = '<i class="fas fa-sun"></i> <span>Light</span>';
-    }
     themeToggle.addEventListener('click', () => {
       document.body.classList.toggle('dark');
       const isDark = document.body.classList.contains('dark');
       localStorage.setItem('zentor_theme', isDark ? 'dark' : 'light');
       themeToggle.innerHTML = isDark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
     });
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: { login: 'Login', 'hero-title': 'Empower Your Teaching with', 'hero-desc': 'The all-in-one platform...', 'get-started': 'Get Started', 'explore': 'Explore Features', 'feat1-title': 'Course Builder', 'feat1-desc': 'Create structured courses...', 'feat2-title': 'Student Management', 'feat2-desc': 'Track progress...', 'feat3-title': 'Live Classes', 'feat3-desc': 'Host interactive live sessions...', 'feat4-title': 'Analytics', 'feat4-desc': 'Smart dashboards...', 'feat5-title': 'Notifications', 'feat5-desc': 'Keep students engaged...', 'feat6-title': 'Secure', 'feat6-desc': 'Enterprise-grade security...', 'cta-title': 'Ready to Transform Your Teaching?', 'cta-desc': 'Join thousands of educators...', 'start-free': 'Start Free Today' },
+        ar: { login: 'تسجيل الدخول', 'hero-title': 'طور تدريسك مع', 'hero-desc': 'المنصة الشاملة...', 'get-started': 'ابدأ الآن', 'explore': 'استكشف الميزات', 'feat1-title': 'منشئ الدورات', 'feat1-desc': 'أنشئ دورات منظمة...', 'feat2-title': 'إدارة الطلاب', 'feat2-desc': 'تابع التقدم...', 'feat3-title': 'الحصص المباشرة', 'feat3-desc': 'استضف جلسات تفاعلية...', 'feat4-title': 'التحليلات', 'feat4-desc': 'لوحات معلومات ذكية...', 'feat5-title': 'الإشعارات', 'feat5-desc': 'حافظ على تفاعل الطلاب...', 'feat6-title': 'آمن', 'feat6-desc': 'أمان على مستوى المؤسسات...', 'cta-title': 'هل أنت مستعد لتطوير تدريسك؟', 'cta-desc': 'انضم إلى آلاف المعلمين...', 'start-free': 'ابدأ مجانًا اليوم' }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      if (localStorage.getItem('zentor_theme') === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.innerHTML = '<i class="fas fa-sun"></i> <span>Light</span>';
+      }
+    }
   </script>
 </body>
-</html> 
+</html>
