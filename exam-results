@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Exam Results</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+    .card h2 { margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+    .stats-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px; margin-bottom: 20px;
+    }
+    .stat-card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 16px; padding: 20px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2);
+      text-align: center; transition: transform 0.2s;
+    }
+    body.dark .stat-card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+    .stat-card:hover { transform: translateY(-3px); }
+    .stat-card .stat-number { font-size: 32px; font-weight: 700; color: var(--primary); }
+    .stat-card .stat-label { font-size: 13px; opacity: 0.7; margin-top: 4px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark th, body.dark td { border-color: rgba(255,255,255,0.05); }
+    th { opacity: 0.7; font-weight: 600; }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 3000; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    .progress-bar {
+      height: 8px; background: #e0e5ec; border-radius: 10px; overflow: hidden; margin-top: 6px;
+    }
+    body.dark .progress-bar { background: #2a3142; }
+    .progress-fill {
+      height: 100%; background: var(--primary); width: 0%;
+      transition: width 0.4s;
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="exam-results.html" class="active"><i class="fas fa-chart-bar"></i> <span data-lang="exam-results">Exam Results</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="exam-results">Exam Results</h1>
+      </div>
+      <div class="topbar-actions">
+        <select id="examFilter" style="padding:8px 16px; border-radius:30px; border:1px solid #e0e5ec; background:var(--glass-bg); color:inherit; backdrop-filter:blur(16px); font-family:inherit; cursor:pointer;">
+          <option value="">Select Exam</option>
+        </select>
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+      </div>
+    </div>
+
+    <!-- Stats Summary -->
+    <div class="stats-grid" id="statsSummary"></div>
+
+    <!-- Results Table -->
+    <div class="card">
+      <h2><i class="fas fa-users"></i> <span data-lang="student-results">Student Results</span></h2>
+      <div id="resultsContainer"></div>
+    </div>
+
+    <!-- Grade Distribution -->
+    <div class="card">
+      <h2><i class="fas fa-chart-pie"></i> <span data-lang="grade-distribution">Grade Distribution</span></h2>
+      <div id="distributionContainer"></div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let allResults = [];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', 'exam-results': 'Exam Results',
+          messages: 'Messages', settings: 'Settings',
+          'student-results': 'Student Results', 'grade-distribution': 'Grade Distribution',
+          'no-results': 'No results found for this exam.', 'select-exam': 'Please select an exam.',
+          'average': 'Average Score', 'highest': 'Highest Score', 'lowest': 'Lowest Score',
+          'participants': 'Participants', 'pass-rate': 'Pass Rate (≥50%)',
+          'excellent': 'Excellent (90-100)', 'good': 'Good (70-89)',
+          'average-grade': 'Average (50-69)', 'poor': 'Poor (<50)'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', 'exam-results': 'نتائج الامتحانات',
+          messages: 'الرسائل', settings: 'الإعدادات',
+          'student-results': 'نتائج الطلاب', 'grade-distribution': 'توزيع الدرجات',
+          'no-results': 'لا توجد نتائج لهذا الامتحان.', 'select-exam': 'يرجى اختيار امتحان.',
+          'average': 'متوسط الدرجات', 'highest': 'أعلى درجة', 'lowest': 'أقل درجة',
+          'participants': 'المشاركون', 'pass-rate': 'نسبة النجاح (≥50%)',
+          'excellent': 'ممتاز (90-100)', 'good': 'جيد (70-89)',
+          'average-grade': 'متوسط (50-69)', 'poor': 'ضعيف (<50)'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      renderResults();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    // Load exams for filter dropdown
+    async function loadExams() {
+      if (!currentTeacherId) return;
+      const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/exams`));
+      const select = document.getElementById('examFilter');
+      select.innerHTML = '<option value="">Select Exam</option>';
+      snap.forEach(doc => {
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().title || doc.id;
+        select.appendChild(opt);
+      });
+      // If examId is in URL, select it
+      const params = new URLSearchParams(window.location.search);
+      const examId = params.get('examId');
+      if (examId) {
+        select.value = examId;
+        loadResults(examId);
+      }
+    }
+
+    document.getElementById('examFilter').addEventListener('change', (e) => {
+      const examId = e.target.value;
+      if (examId) {
+        loadResults(examId);
+      } else {
+        document.getElementById('resultsContainer').innerHTML = `<div class="empty-state" data-lang="select-exam">${currentLang==='ar'?'يرجى اختيار امتحان.':'Please select an exam.'}</div>`;
+        document.getElementById('statsSummary').innerHTML = '';
+        document.getElementById('distributionContainer').innerHTML = '';
+      }
+    });
+
+    async function loadResults(examId) {
+      if (!currentTeacherId) return;
+      const resultsContainer = document.getElementById('resultsContainer');
+      resultsContainer.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/exams/${examId}/results`));
+        allResults = [];
+        snap.forEach(doc => allResults.push({ id: doc.id, ...doc.data() }));
+        if (allResults.length === 0) {
+          resultsContainer.innerHTML = `<div class="empty-state" data-lang="no-results">${currentLang==='ar'?'لا توجد نتائج لهذا الامتحان.':'No results found for this exam.'}</div>`;
+          document.getElementById('statsSummary').innerHTML = '';
+          document.getElementById('distributionContainer').innerHTML = '';
+          return;
+        }
+        renderResults();
+        renderStats();
+        renderDistribution();
+      } catch (err) {
+        resultsContainer.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderStats() {
+      const scores = allResults.map(r => r.score || 0).filter(s => !isNaN(s));
+      const avg = scores.length ? (scores.reduce((a,b)=>a+b,0) / scores.length).toFixed(1) : 0;
+      const max = scores.length ? Math.max(...scores) : 0;
+      const min = scores.length ? Math.min(...scores) : 0;
+      const passCount = scores.filter(s => s >= 50).length;
+      const passRate = scores.length ? ((passCount / scores.length) * 100).toFixed(0) : 0;
+
+      const grid = document.getElementById('statsSummary');
+      grid.innerHTML = `
+        <div class="stat-card"><div class="stat-number">${avg}%</div><div class="stat-label" data-lang="average">Average</div></div>
+        <div class="stat-card"><div class="stat-number">${max}%</div><div class="stat-label" data-lang="highest">Highest</div></div>
+        <div class="stat-card"><div class="stat-number">${min}%</div><div class="stat-label" data-lang="lowest">Lowest</div></div>
+        <div class="stat-card"><div class="stat-number">${scores.length}</div><div class="stat-label" data-lang="participants">Participants</div></div>
+        <div class="stat-card"><div class="stat-number">${passRate}%</div><div class="stat-label" data-lang="pass-rate">Pass Rate</div></div>
+      `;
+      applyLanguage(currentLang);
+    }
+
+    function renderDistribution() {
+      const scores = allResults.map(r => r.score || 0).filter(s => !isNaN(s));
+      const excellent = scores.filter(s => s >= 90).length;
+      const good = scores.filter(s => s >= 70 && s < 90).length;
+      const average = scores.filter(s => s >= 50 && s < 70).length;
+      const poor = scores.filter(s => s < 50).length;
+      const total = scores.length || 1;
+
+      const container = document.getElementById('distributionContainer');
+      const items = [
+        { label: 'excellent', count: excellent, color: '#2ecc71' },
+        { label: 'good', count: good, color: '#2a7de1' },
+        { label: 'average-grade', count: average, color: '#f39c12' },
+        { label: 'poor', count: poor, color: '#e74c3c' }
+      ];
+      let html = '';
+      items.forEach(item => {
+        const pct = ((item.count / total) * 100).toFixed(0);
+        html += `
+          <div style="margin-bottom:12px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+              <span data-lang="${item.label}">${item.label}</span>
+              <span>${item.count} (${pct}%)</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width:${pct}%; background:${item.color};"></div>
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+      applyLanguage(currentLang);
+    }
+
+    function renderResults() {
+      const container = document.getElementById('resultsContainer');
+      let html = `<table><thead><tr><th>Student</th><th>Score</th><th>Percentage</th></tr></thead><tbody>`;
+      allResults.forEach(r => {
+        html += `<tr>
+          <td>${r.studentName || r.studentId || '---'}</td>
+          <td>${r.score ?? '---'}</td>
+          <td>${r.percentage ? r.percentage + '%' : '---'}</td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      loadExams();
+    });
+  </script>
+</body>
+</html>
