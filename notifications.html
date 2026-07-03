@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Notifications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .btn {
+      background: var(--primary); color: white; border: none;
+      padding: 10px 20px; border-radius: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 10px; border: 1px solid #e0e5ec; border-radius: 10px;
+      font-family: inherit; background: rgba(255,255,255,0.8);
+      transition: border 0.2s; color: inherit;
+    }
+    body.dark .form-group input, body.dark .form-group select, body.dark .form-group textarea {
+      background: rgba(26,31,43,0.8); border-color: #2a3142; color: #eef2f6;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--primary);
+    }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark th, body.dark td { border-color: rgba(255,255,255,0.05); }
+    th { opacity: 0.7; font-weight: 600; }
+
+    .modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4); backdrop-filter: blur(8px);
+      display: flex; justify-content: center; align-items: center;
+      z-index: 2000; visibility: hidden; opacity: 0; transition: 0.3s;
+    }
+    .modal.active { visibility: visible; opacity: 1; }
+    .modal-content {
+      background: var(--card); border-radius: 24px; padding: 30px;
+      width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;
+      box-shadow: var(--shadow);
+    }
+    body.dark .modal-content { background: var(--card-dark); }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 9999; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="attendance.html"><i class="fas fa-calendar-check"></i> <span data-lang="attendance">Attendance</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="notifications.html" class="active"><i class="fas fa-bell"></i> <span data-lang="notifications">Notifications</span></a>
+      <a href="announcements.html"><i class="fas fa-bullhorn"></i> <span data-lang="announcements">Announcements</span></a>
+      <a href="revenue.html"><i class="fas fa-dollar-sign"></i> <span data-lang="revenue">Revenue</span></a>
+      <a href="subscription-codes.html"><i class="fas fa-ticket-alt"></i> <span data-lang="subscription-codes">Subscription Codes</span></a>
+      <a href="analytics.html"><i class="fas fa-chart-line"></i> <span data-lang="analytics">Analytics</span></a>
+      <a href="calendar.html"><i class="fas fa-calendar"></i> <span data-lang="calendar">Calendar</span></a>
+      <a href="profile.html"><i class="fas fa-id-card"></i> <span data-lang="profile">Profile</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="notifications">Notifications</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+        <button class="btn" id="addNotificationBtn"><i class="fas fa-plus"></i> <span data-lang="add-notification">Add Notification</span></button>
+      </div>
+    </div>
+
+    <div class="card" id="notificationsContainer"></div>
+  </main>
+
+  <!-- Add Notification Modal -->
+  <div class="modal" id="notificationModal">
+    <div class="modal-content">
+      <h2 id="modalTitle">New Notification</h2>
+      <form id="notificationForm">
+        <div class="form-group">
+          <label data-lang="title">Title</label>
+          <input type="text" id="notifTitle" required>
+        </div>
+        <div class="form-group">
+          <label data-lang="message">Message</label>
+          <textarea id="notifMessage" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label data-lang="target">Target</label>
+          <select id="notifTarget">
+            <option value="all">All Students</option>
+            <option value="course">Specific Course</option>
+          </select>
+        </div>
+        <div class="form-group" id="courseSelectGroup" style="display:none;">
+          <label data-lang="course">Course</label>
+          <select id="notifCourse"></select>
+        </div>
+        <div class="form-group">
+          <label data-lang="schedule">Schedule (optional)</label>
+          <input type="datetime-local" id="notifSchedule">
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button type="button" class="btn btn-outline" id="cancelNotifBtn"><span data-lang="cancel">Cancel</span></button>
+          <button type="submit" class="btn"><i class="fas fa-save"></i> <span data-lang="save">Save</span></button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let allCourses = [];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', attendance: 'Attendance',
+          messages: 'Messages', notifications: 'Notifications', announcements: 'Announcements',
+          revenue: 'Revenue', 'subscription-codes': 'Subscription Codes', analytics: 'Analytics',
+          calendar: 'Calendar', profile: 'Profile', settings: 'Settings',
+          'add-notification': 'Add Notification', title: 'Title', message: 'Message',
+          target: 'Target', schedule: 'Schedule (optional)', cancel: 'Cancel', save: 'Save',
+          'no-notifications': 'No notifications yet.', 'all-students': 'All Students',
+          'specific-course': 'Specific Course', delete: 'Delete', course: 'Course'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', attendance: 'الحضور',
+          messages: 'الرسائل', notifications: 'الإشعارات', announcements: 'الإعلانات',
+          revenue: 'الإيرادات', 'subscription-codes': 'أكواد الاشتراك', analytics: 'التحليلات',
+          calendar: 'التقويم', profile: 'الملف الشخصي', settings: 'الإعدادات',
+          'add-notification': 'إضافة إشعار', title: 'العنوان', message: 'الرسالة',
+          target: 'الهدف', schedule: 'جدولة (اختياري)', cancel: 'إلغاء', save: 'حفظ',
+          'no-notifications': 'لا توجد إشعارات.', 'all-students': 'كل الطلاب',
+          'specific-course': 'كورس معين', delete: 'حذف', course: 'الكورس'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      loadNotifications();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    // Notification modal
+    const notificationModal = document.getElementById('notificationModal');
+    const notificationForm = document.getElementById('notificationForm');
+    const addNotificationBtn = document.getElementById('addNotificationBtn');
+    const cancelNotifBtn = document.getElementById('cancelNotifBtn');
+    const targetSelect = document.getElementById('notifTarget');
+    const courseSelectGroup = document.getElementById('courseSelectGroup');
+    const notifCourse = document.getElementById('notifCourse');
+
+    addNotificationBtn.addEventListener('click', () => {
+      document.getElementById('modalTitle').textContent = currentLang==='ar'?'إشعار جديد':'New Notification';
+      notificationForm.reset();
+      courseSelectGroup.style.display = 'none';
+      notificationModal.classList.add('active');
+    });
+    cancelNotifBtn.addEventListener('click', () => notificationModal.classList.remove('active'));
+
+    targetSelect.addEventListener('change', () => {
+      courseSelectGroup.style.display = targetSelect.value === 'course' ? 'block' : 'none';
+    });
+
+    notificationForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('notifTitle').value.trim();
+      const message = document.getElementById('notifMessage').value.trim();
+      const target = document.getElementById('notifTarget').value;
+      const schedule = document.getElementById('notifSchedule').value;
+      const courseId = target === 'course' ? notifCourse.value : null;
+
+      if (!currentTeacherId) return;
+      try {
+        await addDoc(collection(db, `teachers/${currentTeacherId}/notifications`), {
+          title,
+          message,
+          target,
+          courseId: courseId || null,
+          scheduledAt: schedule ? new Date(schedule).toISOString() : null,
+          createdAt: new Date().toISOString(),
+          sent: false
+        });
+        showToast(currentLang==='ar'?'تم إنشاء الإشعار':'Notification created');
+        notificationModal.classList.remove('active');
+        loadNotifications();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    });
+
+    async function loadCourses() {
+      if (!currentTeacherId) return;
+      const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/courses`));
+      allCourses = [];
+      notifCourse.innerHTML = '';
+      snap.forEach(doc => {
+        allCourses.push({ id: doc.id, ...doc.data() });
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().title;
+        notifCourse.appendChild(opt);
+      });
+    }
+
+    async function loadNotifications() {
+      if (!currentTeacherId) return;
+      const container = document.getElementById('notificationsContainer');
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/notifications`));
+        const notifs = [];
+        snap.forEach(doc => notifs.push({ id: doc.id, ...doc.data() }));
+        notifs.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+        if (notifs.length === 0) {
+          container.innerHTML = `<div class="empty-state" data-lang="no-notifications">${currentLang==='ar'?'لا توجد إشعارات.':'No notifications yet.'}</div>`;
+          return;
+        }
+        let html = `<table><thead><tr><th data-lang="title">Title</th><th data-lang="target">Target</th><th data-lang="schedule">Schedule</th><th></th></tr></thead><tbody>`;
+        notifs.forEach(n => {
+          const scheduleText = n.scheduledAt ? new Date(n.scheduledAt).toLocaleString(currentLang==='ar'?'ar-EG':'en-US') : (currentLang==='ar'?'فوري':'Immediate');
+          const targetText = n.target === 'all' ? (currentLang==='ar'?'كل الطلاب':'All Students') : (allCourses.find(c=>c.id===n.courseId)?.title || n.courseId);
+          html += `<tr>
+            <td>${n.title}</td>
+            <td>${targetText}</td>
+            <td>${scheduleText}</td>
+            <td><button class="btn btn-danger delete-notif-btn" data-id="${n.id}"><i class="fas fa-trash"></i></button></td>
+          </tr>`;
+        });
+        html += '</tbody></table>';
+        container.innerHTML = html;
+        container.querySelectorAll('.delete-notif-btn').forEach(btn => {
+          btn.addEventListener('click', async (e) => {
+            if (!confirm(currentLang==='ar'?'هل أنت متأكد؟':'Are you sure?')) return;
+            await deleteDoc(doc(db, `teachers/${currentTeacherId}/notifications`, e.currentTarget.dataset.id));
+            showToast(currentLang==='ar'?'تم حذف الإشعار':'Notification deleted');
+            loadNotifications();
+          });
+        });
+        applyLanguage(currentLang);
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      await loadCourses();
+      loadNotifications();
+    });
+  </script>
+</body>
+</html>
