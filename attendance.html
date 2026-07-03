@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Attendance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .card {
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; padding: 24px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px;
+      transition: background 0.3s;
+    }
+    body.dark .card { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .btn {
+      background: var(--primary); color: white; border: none;
+      padding: 10px 20px; border-radius: 12px; font-weight: 600;
+      cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+    .btn-outline { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
+    .btn-outline:hover { background: var(--primary); color: white; }
+    .btn-danger { background: #e74c3c; }
+    .btn-danger:hover { background: #c0392b; }
+
+    select {
+      padding: 10px 16px; border-radius: 12px;
+      border: 1px solid #e0e5ec; background: var(--glass-bg);
+      color: inherit; font-family: inherit; font-size: 14px;
+      backdrop-filter: blur(16px);
+    }
+    body.dark select { background: var(--glass-bg-dark); border-color: #2a3142; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark th, body.dark td { border-color: rgba(255,255,255,0.05); }
+    th { opacity: 0.7; font-weight: 600; }
+
+    .status-toggle { cursor: pointer; }
+    .present { color: #2ecc71; font-weight: 600; }
+    .absent { color: #e74c3c; font-weight: 600; }
+    .empty-state { text-align: center; padding: 40px; opacity: 0.6; }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 3000; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="attendance.html" class="active"><i class="fas fa-calendar-check"></i> <span data-lang="attendance">Attendance</span></a>
+      <a href="messages.html"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="attendance">Attendance</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; gap:15px; align-items:center; flex-wrap:wrap; margin-bottom:20px;">
+        <label><strong data-lang="select-course">Course:</strong></label>
+        <select id="courseSelect"><option value="">-- Select Course --</option></select>
+        <label style="margin-left:15px;"><strong data-lang="date">Date:</strong></label>
+        <input type="date" id="attendanceDate" style="padding:8px; border-radius:10px; border:1px solid #e0e5ec; background:var(--glass-bg); color:inherit;">
+      </div>
+      <div id="attendanceContainer"></div>
+    </div>
+
+    <div class="card">
+      <h2><i class="fas fa-history"></i> <span data-lang="attendance-records">Attendance Records</span></h2>
+      <div id="recordsContainer"></div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc, query, where } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let allStudents = [];
+    let allCourses = [];
+    let currentAttendanceDate = new Date().toISOString().split('T')[0];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', attendance: 'Attendance',
+          messages: 'Messages', settings: 'Settings',
+          'select-course': 'Course:', 'date': 'Date:', 'attendance-records': 'Attendance Records',
+          'take-attendance': 'Take Attendance', 'no-students': 'No students enrolled in this course.',
+          'no-records': 'No attendance records yet.', 'present': 'Present', 'absent': 'Absent',
+          'mark-present': 'Mark Present', 'mark-absent': 'Mark Absent',
+          'update-success': 'Attendance updated!', 'update-error': 'Failed to update attendance.'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', attendance: 'الحضور',
+          messages: 'الرسائل', settings: 'الإعدادات',
+          'select-course': 'الكورس:', 'date': 'التاريخ:', 'attendance-records': 'سجلات الحضور',
+          'take-attendance': 'تسجيل الحضور', 'no-students': 'لا يوجد طلاب مسجلون في هذا الكورس.',
+          'no-records': 'لا توجد سجلات حضور.', 'present': 'حاضر', 'absent': 'غائب',
+          'mark-present': 'تسجيل حضور', 'mark-absent': 'تسجيل غياب',
+          'update-success': 'تم تحديث الحضور!', 'update-error': 'فشل تحديث الحضور.'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      loadAttendanceForCourse();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    document.getElementById('attendanceDate').value = currentAttendanceDate;
+    document.getElementById('attendanceDate').addEventListener('change', (e) => {
+      currentAttendanceDate = e.target.value;
+      loadAttendanceForCourse();
+    });
+
+    async function loadCourses() {
+      if (!currentTeacherId) return;
+      const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/courses`));
+      allCourses = [];
+      const select = document.getElementById('courseSelect');
+      select.innerHTML = '<option value="">-- Select Course --</option>';
+      snap.forEach(doc => {
+        allCourses.push({ id: doc.id, ...doc.data() });
+        const opt = document.createElement('option');
+        opt.value = doc.id;
+        opt.textContent = doc.data().title;
+        select.appendChild(opt);
+      });
+    }
+
+    document.getElementById('courseSelect').addEventListener('change', () => {
+      loadStudentsForCourse();
+      loadAttendanceForCourse();
+    });
+
+    async function loadStudentsForCourse() {
+      const courseId = document.getElementById('courseSelect').value;
+      if (!courseId || !currentTeacherId) {
+        document.getElementById('attendanceContainer').innerHTML = '';
+        return;
+      }
+      const container = document.getElementById('attendanceContainer');
+      container.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/courses/${courseId}/students`));
+        allStudents = [];
+        snap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+        if (allStudents.length === 0) {
+          container.innerHTML = `<div class="empty-state" data-lang="no-students">${currentLang==='ar'?'لا يوجد طلاب مسجلون.':'No students enrolled.'}</div>`;
+          applyLanguage(currentLang);
+          return;
+        }
+        renderAttendanceList();
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    async function loadAttendanceForCourse() {
+      const courseId = document.getElementById('courseSelect').value;
+      const recordsContainer = document.getElementById('recordsContainer');
+      recordsContainer.innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      if (!courseId || !currentTeacherId) {
+        recordsContainer.innerHTML = `<div class="empty-state" data-lang="no-records">${currentLang==='ar'?'اختر كورساً.':'Select a course.'}</div>`;
+        applyLanguage(currentLang);
+        return;
+      }
+      try {
+        const snap = await getDocs(query(collection(db, `teachers/${currentTeacherId}/attendance`), where('courseId', '==', courseId)));
+        const records = [];
+        snap.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+        if (records.length === 0) {
+          recordsContainer.innerHTML = `<div class="empty-state" data-lang="no-records">${currentLang==='ar'?'لا توجد سجلات حضور.':'No attendance records.'}</div>`;
+          applyLanguage(currentLang);
+          return;
+        }
+        // Group by date
+        const grouped = {};
+        records.forEach(r => {
+          const date = r.date || 'unknown';
+          if (!grouped[date]) grouped[date] = [];
+          grouped[date].push(r);
+        });
+        let html = '';
+        for (const [date, items] of Object.entries(grouped)) {
+          html += `<h3 style="margin-top:15px;">${date}</h3>`;
+          html += '<table><thead><tr><th>Student</th><th>Status</th></tr></thead><tbody>';
+          items.forEach(item => {
+            html += `<tr><td>${item.studentName || item.studentId}</td><td><span class="${item.present ? 'present' : 'absent'}">${item.present ? (currentLang==='ar'?'حاضر':'Present') : (currentLang==='ar'?'غائب':'Absent')}</span></td></tr>`;
+          });
+          html += '</tbody></table>';
+        }
+        recordsContainer.innerHTML = html;
+      } catch (err) {
+        recordsContainer.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    function renderAttendanceList() {
+      const container = document.getElementById('attendanceContainer');
+      const courseId = document.getElementById('courseSelect').value;
+      if (allStudents.length === 0) {
+        container.innerHTML = `<div class="empty-state" data-lang="no-students">${currentLang==='ar'?'لا يوجد طلاب.':'No students.'}</div>`;
+        applyLanguage(currentLang);
+        return;
+      }
+      let html = `<table><thead><tr><th data-lang="student">Student</th><th data-lang="status">Status</th><th data-lang="action">Action</th></tr></thead><tbody>`;
+      allStudents.forEach(student => {
+        html += `<tr>
+          <td>${student.name || student.email || student.id}</td>
+          <td><span class="status-indicator" id="status-${student.id}">---</span></td>
+          <td>
+            <button class="btn present-btn" data-student-id="${student.id}" data-course-id="${courseId}" style="padding:6px 12px; font-size:12px;"><i class="fas fa-check"></i> <span data-lang="mark-present">Present</span></button>
+            <button class="btn btn-danger absent-btn" data-student-id="${student.id}" data-course-id="${courseId}" style="padding:6px 12px; font-size:12px;"><i class="fas fa-times"></i> <span data-lang="mark-absent">Absent</span></button>
+          </td>
+        </tr>`;
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+      applyLanguage(currentLang);
+
+      // Check existing attendance for today
+      loadTodayAttendanceStatus();
+
+      // Add event listeners
+      container.querySelectorAll('.present-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const studentId = e.currentTarget.dataset.studentId;
+          const courseId = e.currentTarget.dataset.courseId;
+          await markAttendance(studentId, courseId, true);
+        });
+      });
+      container.querySelectorAll('.absent-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const studentId = e.currentTarget.dataset.studentId;
+          const courseId = e.currentTarget.dataset.courseId;
+          await markAttendance(studentId, courseId, false);
+        });
+      });
+    }
+
+    async function loadTodayAttendanceStatus() {
+      const courseId = document.getElementById('courseSelect').value;
+      if (!currentTeacherId || !courseId) return;
+      const date = currentAttendanceDate;
+      const snap = await getDocs(query(collection(db, `teachers/${currentTeacherId}/attendance`), where('courseId', '==', courseId), where('date', '==', date)));
+      const records = [];
+      snap.forEach(doc => records.push({ id: doc.id, ...doc.data() }));
+      records.forEach(r => {
+        const statusEl = document.getElementById(`status-${r.studentId}`);
+        if (statusEl) {
+          statusEl.textContent = r.present ? (currentLang==='ar'?'حاضر':'Present') : (currentLang==='ar'?'غائب':'Absent');
+          statusEl.className = `status-indicator ${r.present ? 'present' : 'absent'}`;
+        }
+      });
+    }
+
+    async function markAttendance(studentId, courseId, present) {
+      if (!currentTeacherId) return;
+      const date = currentAttendanceDate;
+      // Check if record exists
+      const existingSnap = await getDocs(query(collection(db, `teachers/${currentTeacherId}/attendance`), where('courseId', '==', courseId), where('studentId', '==', studentId), where('date', '==', date)));
+      try {
+        if (!existingSnap.empty) {
+          // Update existing
+          const docId = existingSnap.docs[0].id;
+          await updateDoc(doc(db, `teachers/${currentTeacherId}/attendance`, docId), { present });
+        } else {
+          // Create new
+          await addDoc(collection(db, `teachers/${currentTeacherId}/attendance`), {
+            courseId,
+            studentId,
+            studentName: allStudents.find(s => s.id === studentId)?.name || '',
+            date,
+            present,
+            timestamp: new Date().toISOString()
+          });
+        }
+        showToast(currentLang==='ar'?'تم تحديث الحضور!':'Attendance updated!', 'success');
+        loadTodayAttendanceStatus();
+        loadAttendanceForCourse();
+      } catch (err) {
+        showToast(currentLang==='ar'?'فشل التحديث':'Update failed', 'error');
+        console.error(err);
+      }
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      await loadCourses();
+    });
+  </script>
+</body>
+</html>
