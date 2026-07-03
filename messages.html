@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zentor Teacher - Messages</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #2a7de1; --primary-hover: #1a67c4;
+      --bg: #f4f7fc; --bg-dark: #0b0e14;
+      --card: #ffffff; --card-dark: #1a1f2b;
+      --text: #0b1e33; --text-dark: #eef2f6;
+      --sidebar-bg: rgba(255,255,255,0.85); --sidebar-bg-dark: rgba(26,31,43,0.9);
+      --glass-bg: rgba(255,255,255,0.7); --glass-bg-dark: rgba(26,31,43,0.7);
+      --shadow: 0 8px 32px rgba(0,0,0,0.08);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.dark { background: var(--bg-dark); color: var(--text-dark); }
+
+    .sidebar {
+      width: 260px; height: 100vh; position: fixed; top: 0; left: 0;
+      background: var(--sidebar-bg); backdrop-filter: blur(24px);
+      border-right: 1px solid rgba(255,255,255,0.2);
+      padding: 20px; overflow-y: auto; z-index: 1000;
+      transition: transform 0.3s, background 0.3s;
+    }
+    body.dark .sidebar { background: var(--sidebar-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .sidebar .logo { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; }
+    .sidebar .logo i { font-size: 28px; color: var(--primary); }
+    .sidebar .logo span { font-size: 22px; font-weight: 700; background: linear-gradient(135deg, #2a7de1, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .sidebar nav a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px; border-radius: 12px;
+      color: inherit; text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 4px; font-weight: 500;
+    }
+    .sidebar nav a:hover, .sidebar nav a.active {
+      background: rgba(42,125,225,0.1); color: var(--primary);
+    }
+    .sidebar nav a i { width: 20px; text-align: center; }
+
+    .main {
+      flex: 1; margin-left: 260px; padding: 20px 30px;
+      transition: margin-left 0.3s; width: calc(100% - 260px);
+      display: flex; flex-direction: column;
+    }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; flex-wrap: wrap; gap: 15px;
+    }
+    .topbar h1 { font-size: 28px; font-weight: 700; }
+    .topbar-actions { display: flex; align-items: center; gap: 12px; }
+    .icon-btn {
+      background: var(--glass-bg); backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,0.2); border-radius: 50px;
+      padding: 8px 16px; cursor: pointer; font-size: 14px;
+      display: flex; align-items: center; gap: 6px; color: inherit;
+    }
+    body.dark .icon-btn { background: var(--glass-bg-dark); border-color: rgba(255,255,255,0.05); }
+    .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; color: inherit; }
+
+    .chat-wrapper {
+      display: flex; flex: 1; gap: 20px; overflow: hidden;
+      background: var(--card); backdrop-filter: blur(20px);
+      border-radius: 20px; box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    body.dark .chat-wrapper { background: var(--card-dark); border-color: rgba(255,255,255,0.05); }
+
+    .contacts-panel {
+      width: 300px; border-right: 1px solid rgba(0,0,0,0.05);
+      display: flex; flex-direction: column; overflow-y: auto;
+    }
+    body.dark .contacts-panel { border-color: rgba(255,255,255,0.05); }
+    .contacts-panel h3 { padding: 16px; margin: 0; font-size: 16px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    body.dark .contacts-panel h3 { border-color: rgba(255,255,255,0.05); }
+    .contact-item {
+      padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+      cursor: pointer; transition: background 0.2s; border-bottom: 1px solid rgba(0,0,0,0.02);
+    }
+    body.dark .contact-item { border-color: rgba(255,255,255,0.02); }
+    .contact-item:hover, .contact-item.active { background: rgba(42,125,225,0.05); }
+    .contact-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--primary); color: white; display: flex;
+      align-items: center; justify-content: center; font-weight: 700; font-size: 16px;
+    }
+    .contact-info { flex: 1; min-width: 0; }
+    .contact-name { font-weight: 600; font-size: 14px; }
+    .contact-lastmsg { font-size: 12px; opacity: 0.6; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .chat-area {
+      flex: 1; display: flex; flex-direction: column;
+    }
+    .chat-header {
+      padding: 16px; border-bottom: 1px solid rgba(0,0,0,0.05);
+      font-weight: 600; display: flex; align-items: center; gap: 10px;
+    }
+    body.dark .chat-header { border-color: rgba(255,255,255,0.05); }
+    .messages-container {
+      flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px;
+    }
+    .message-bubble {
+      max-width: 70%; padding: 12px 16px; border-radius: 18px;
+      font-size: 14px; line-height: 1.4; word-wrap: break-word;
+    }
+    .message-sent {
+      align-self: flex-end; background: var(--primary); color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .message-received {
+      align-self: flex-start; background: rgba(0,0,0,0.05);
+      border-bottom-left-radius: 4px;
+    }
+    body.dark .message-received { background: rgba(255,255,255,0.08); }
+    .message-time { font-size: 10px; opacity: 0.7; margin-top: 4px; text-align: right; }
+    .no-chat-selected { flex: 1; display: flex; align-items: center; justify-content: center; opacity: 0.5; font-size: 18px; }
+
+    .message-input-area {
+      padding: 16px; border-top: 1px solid rgba(0,0,0,0.05);
+      display: flex; gap: 10px;
+    }
+    body.dark .message-input-area { border-color: rgba(255,255,255,0.05); }
+    .message-input-area input {
+      flex: 1; padding: 10px 16px; border: 1px solid #e0e5ec; border-radius: 30px;
+      background: rgba(255,255,255,0.6); font-family: inherit; color: inherit;
+    }
+    body.dark .message-input-area input {
+      background: rgba(26,31,43,0.6); border-color: #2a3142;
+    }
+    .message-input-area input:focus { outline: none; border-color: var(--primary); }
+    .send-btn {
+      width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+      color: white; border: none; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; font-size: 18px;
+    }
+    .send-btn:hover { background: var(--primary-hover); }
+
+    .toast { position: fixed; bottom: 30px; right: 30px; background: #fff; color: #0b1e33; padding: 16px 24px; border-radius: 12px; box-shadow: 0 12px 32px rgba(0,0,0,0.18); display: flex; align-items: center; gap: 12px; backdrop-filter: blur(20px); z-index: 9999; transform: translateY(120px); opacity: 0; transition: 0.3s; max-width: 350px; border-left: 4px solid var(--primary); }
+    body.dark .toast { background: #1a1f2b; color: #eef2f6; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { border-left-color: #e74c3c; }
+    .toast.success { border-left-color: #2ecc71; }
+
+    @media (max-width: 1024px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; }
+      .hamburger { display: block; }
+      .contacts-panel { width: 100%; display: none; }
+      .contacts-panel.mobile-visible { display: flex; }
+      .chat-area { display: none; }
+      .chat-area.mobile-visible { display: flex; }
+      .back-to-contacts { display: block; }
+    }
+    .back-to-contacts { display: none; padding: 8px 16px; font-weight: 500; cursor: pointer; }
+    @media (min-width: 1025px) { .back-to-contacts { display: none; } }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="logo"><i class="fas fa-chalkboard-teacher"></i><span>Zentor</span></div>
+    <nav>
+      <a href="dashboard.html"><i class="fas fa-th-large"></i> <span data-lang="dashboard">Dashboard</span></a>
+      <a href="courses.html"><i class="fas fa-graduation-cap"></i> <span data-lang="courses">Courses</span></a>
+      <a href="lessons.html"><i class="fas fa-play-circle"></i> <span data-lang="lessons">Lessons</span></a>
+      <a href="live-classes.html"><i class="fas fa-video"></i> <span data-lang="live-classes">Live Classes</span></a>
+      <a href="students.html"><i class="fas fa-users"></i> <span data-lang="students">Students</span></a>
+      <a href="assignments.html"><i class="fas fa-tasks"></i> <span data-lang="assignments">Assignments</span></a>
+      <a href="exams.html"><i class="fas fa-file-alt"></i> <span data-lang="exams">Exams</span></a>
+      <a href="attendance.html"><i class="fas fa-calendar-check"></i> <span data-lang="attendance">Attendance</span></a>
+      <a href="messages.html" class="active"><i class="fas fa-comments"></i> <span data-lang="messages">Messages</span></a>
+      <a href="settings.html"><i class="fas fa-cog"></i> <span data-lang="settings">Settings</span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="hamburger" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+        <h1 data-lang="messages">Messages</h1>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="langToggle"><i class="fas fa-globe"></i> <span>AR</span></button>
+        <button class="icon-btn" id="themeToggle"><i class="fas fa-moon"></i> <span>Dark</span></button>
+      </div>
+    </div>
+
+    <div class="chat-wrapper">
+      <!-- Contacts Panel -->
+      <div class="contacts-panel" id="contactsPanel">
+        <h3 data-lang="contacts">Contacts</h3>
+        <div id="contactsList"></div>
+      </div>
+
+      <!-- Chat Area -->
+      <div class="chat-area" id="chatArea">
+        <div class="chat-header" id="chatHeader">
+          <span class="back-to-contacts" id="backToContacts"><i class="fas fa-arrow-left"></i> Back</span>
+          <span id="chatPartnerName">Select a contact</span>
+        </div>
+        <div class="messages-container" id="messagesContainer">
+          <div class="no-chat-selected" data-lang="select-contact">Select a contact to start chatting</div>
+        </div>
+        <div class="message-input-area" id="messageInputArea" style="display: none;">
+          <input type="text" id="messageInput" placeholder="Type a message..." data-lang-placeholder="type-message">
+          <button class="send-btn" id="sendBtn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, getDoc, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBOd-cHm8J84BMwdlP8a3zOVlK8sboUFj0",
+      authDomain: "zentor-caaf1.firebaseapp.com",
+      projectId: "zentor-caaf1",
+      storageBucket: "zentor-caaf1.firebasestorage.app",
+      messagingSenderId: "681267238383",
+      appId: "1:681267238383:web:0c93fb405bfd6b5903921a",
+      measurementId: "G-X80GNJHMS5"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentTeacherId = null;
+    let currentLang = localStorage.getItem('zentor_lang') || 'en';
+    let currentChatPartner = null;
+    let allStudents = [];
+
+    const toast = document.getElementById('toast');
+    function showToast(msg, type='success') {
+      toast.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':'fa-exclamation-circle'}"></i> ${msg}`;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 4000);
+    }
+
+    function applyLanguage(lang) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      document.querySelector('#langToggle span').textContent = lang === 'en' ? 'AR' : 'EN';
+      const trans = {
+        en: {
+          dashboard: 'Dashboard', courses: 'Courses', lessons: 'Lessons', 'live-classes': 'Live Classes',
+          students: 'Students', assignments: 'Assignments', exams: 'Exams', attendance: 'Attendance',
+          messages: 'Messages', settings: 'Settings', contacts: 'Contacts',
+          'select-contact': 'Select a contact to start chatting', 'type-message': 'Type a message...',
+          'no-contacts': 'No contacts yet.'
+        },
+        ar: {
+          dashboard: 'لوحة التحكم', courses: 'الكورسات', lessons: 'الدروس', 'live-classes': 'الحصص المباشرة',
+          students: 'الطلاب', assignments: 'الواجبات', exams: 'الامتحانات', attendance: 'الحضور',
+          messages: 'الرسائل', settings: 'الإعدادات', contacts: 'جهات الاتصال',
+          'select-contact': 'اختر جهة اتصال للبدء', 'type-message': 'اكتب رسالة...',
+          'no-contacts': 'لا توجد جهات اتصال.'
+        }
+      };
+      document.querySelectorAll('[data-lang]').forEach(el => {
+        const key = el.getAttribute('data-lang');
+        if (trans[lang] && trans[lang][key]) el.textContent = trans[lang][key];
+      });
+      const msgInput = document.getElementById('messageInput');
+      if (msgInput) msgInput.placeholder = trans[lang]?.['type-message'] || 'Type a message...';
+    }
+    function applyTheme() {
+      const saved = localStorage.getItem('zentor_theme') || 'light';
+      const dark = saved === 'dark';
+      document.body.classList.toggle('dark', dark);
+      document.getElementById('themeToggle').innerHTML = dark ? '<i class="fas fa-sun"></i> <span>Light</span>' : '<i class="fas fa-moon"></i> <span>Dark</span>';
+    }
+
+    document.getElementById('langToggle').addEventListener('click', ()=>{
+      currentLang = currentLang === 'en' ? 'ar' : 'en';
+      localStorage.setItem('zentor_lang', currentLang);
+      applyLanguage(currentLang);
+      loadContacts();
+    });
+    document.getElementById('themeToggle').addEventListener('click', ()=>{
+      document.body.classList.toggle('dark');
+      localStorage.setItem('zentor_theme', document.body.classList.contains('dark')?'dark':'light');
+      applyTheme();
+    });
+    document.getElementById('hamburgerBtn').addEventListener('click', ()=> document.getElementById('sidebar').classList.toggle('open'));
+
+    // Mobile: back to contacts
+    document.getElementById('backToContacts').addEventListener('click', ()=>{
+      document.getElementById('contactsPanel').classList.add('mobile-visible');
+      document.getElementById('chatArea').classList.remove('mobile-visible');
+    });
+
+    // Load students as contacts
+    async function loadContacts() {
+      if (!currentTeacherId) return;
+      const container = document.getElementById('contactsList');
+      container.innerHTML = '<div style="padding:16px; text-align:center;"><i class="fas fa-spinner fa-spin"></i></div>';
+      try {
+        const snap = await getDocs(collection(db, `teachers/${currentTeacherId}/students`));
+        allStudents = [];
+        snap.forEach(doc => allStudents.push({ id: doc.id, ...doc.data() }));
+        if (allStudents.length === 0) {
+          container.innerHTML = `<div style="padding:20px; text-align:center; opacity:0.6;" data-lang="no-contacts">${currentLang==='ar'?'لا توجد جهات اتصال.':'No contacts yet.'}</div>`;
+          applyLanguage(currentLang);
+          return;
+        }
+        let html = '';
+        allStudents.forEach(s => {
+          const initials = (s.name || '??').split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2);
+          html += `<div class="contact-item" data-id="${s.id}" data-name="${s.name || s.email || 'Unknown'}">
+            <div class="contact-avatar">${initials}</div>
+            <div class="contact-info">
+              <div class="contact-name">${s.name || s.email}</div>
+              <div class="contact-lastmsg"></div>
+            </div>
+          </div>`;
+        });
+        container.innerHTML = html;
+        // Click handlers
+        container.querySelectorAll('.contact-item').forEach(item => {
+          item.addEventListener('click', () => {
+            const id = item.dataset.id;
+            const name = item.dataset.name;
+            openChat(id, name);
+            // Highlight active
+            container.querySelectorAll('.contact-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+          });
+        });
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    function openChat(partnerId, partnerName) {
+      currentChatPartner = partnerId;
+      document.getElementById('chatPartnerName').textContent = partnerName;
+      document.getElementById('messageInputArea').style.display = 'flex';
+      document.getElementById('messagesContainer').innerHTML = '<div style="text-align:center; padding:20px;"><i class="fas fa-spinner fa-spin"></i></div>';
+      // On mobile, show chat area
+      if (window.innerWidth <= 1024) {
+        document.getElementById('contactsPanel').classList.remove('mobile-visible');
+        document.getElementById('chatArea').classList.add('mobile-visible');
+      }
+      loadMessages();
+    }
+
+    async function loadMessages() {
+      if (!currentTeacherId || !currentChatPartner) return;
+      const container = document.getElementById('messagesContainer');
+      try {
+        const snap = await getDocs(query(collection(db, 'messages'),
+          where('senderId', 'in', [currentTeacherId, currentChatPartner]),
+          where('receiverId', 'in', [currentTeacherId, currentChatPartner])
+        ));
+        const messages = [];
+        snap.forEach(doc => messages.push({ id: doc.id, ...doc.data() }));
+        messages.sort((a,b) => (a.timestamp?.seconds||0) - (b.timestamp?.seconds||0));
+        if (messages.length === 0) {
+          container.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.6;">No messages yet.</div>';
+          return;
+        }
+        let html = '';
+        messages.forEach(msg => {
+          const isSent = msg.senderId === currentTeacherId;
+          const time = msg.timestamp ? new Date(msg.timestamp.seconds * 1000).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '';
+          html += `<div class="message-bubble ${isSent ? 'message-sent' : 'message-received'}">
+            <div>${msg.text}</div>
+            <div class="message-time">${time}</div>
+          </div>`;
+        });
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
+      } catch (err) {
+        container.innerHTML = `<div style="color:red;">Error: ${err.message}</div>`;
+      }
+    }
+
+    // Send message
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    document.getElementById('messageInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
+      if (!text || !currentChatPartner || !currentTeacherId) return;
+      try {
+        await addDoc(collection(db, 'messages'), {
+          senderId: currentTeacherId,
+          receiverId: currentChatPartner,
+          text,
+          timestamp: new Date()
+        });
+        input.value = '';
+        loadMessages(); // refresh
+      } catch (err) {
+        showToast('Failed to send message: ' + err.message, 'error');
+      }
+    }
+
+    onAuthStateChanged(auth, async (user)=>{
+      if (!user) { window.location.href='login.html'; return; }
+      const prefSnap = await getDoc(doc(db, `teachers/${user.uid}/settings/preferences`));
+      if (!prefSnap.exists()) { await signOut(auth); window.location.href='login.html'; return; }
+      currentTeacherId = user.uid;
+      applyLanguage(currentLang);
+      applyTheme();
+      loadContacts();
+    });
+  </script>
+</body>
+</html>
